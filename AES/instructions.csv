@@ -21,3 +21,6 @@ asb,R,10001
 asr,R,10010
 amc,R,10011
 ark,R,10100
+asbi,R,11001
+asri,R,11010
+amci,R,11011
