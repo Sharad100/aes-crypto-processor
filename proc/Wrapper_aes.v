@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+`timescale 1ns / 100ps
 /**
  * Wrapper_aes.v — Wrapper.v extended to connect processor_aes
  * with the vector register file ports.
@@ -25,7 +25,7 @@ module Wrapper_aes (clock, reset);
     wire [127:0] vrData, vRegA, vRegB;
 
     // Path to assembled instruction memory (without .mem extension)
-    localparam INSTR_FILE = "../AES/aes_test";
+    localparam INSTR_FILE = "./aes_test";
 
     // Main Processing Unit
     processor_aes CPU(

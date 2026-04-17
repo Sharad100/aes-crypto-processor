@@ -352,22 +352,25 @@ module processor_aes(
     );
 
     assign md_stall = (md_inactive & DX_isMD & ~lw_use_stall) | md_pulse | md_busy;
-
-    wire lw_use_stall = XM_isLW_bp & (
+    wire lw_use_stall;
+    assign lw_use_stall = XM_isLW_bp & (
         (|DX_srcA & (XM_rd_bp == DX_srcA)) |
         (|DX_srcB & (XM_rd_bp == DX_srcB))
     );
 
     wire [4:0] DX_rd_raw = DX_IR[26:22];
     wire DX_writes = DX_isR | DX_isADDI | DX_isLW | DX_isJAL | DX_isSETX;
-    wire jr_raw_stall = FD_isJR & (
+    wire jr_raw_stall;
+    assign jr_raw_stall = FD_isJR & (
         (DX_writes & (|FD_jr_reg) & (DX_rd_raw == FD_jr_reg)) |
         (XM_isLW_bp & (|FD_jr_reg) & (XM_rd_bp == FD_jr_reg))
     );
 
     // akx→lrk stall: lrk in DX while akx is still in XM (key bank not written yet)
-    wire XM_isAKX_bp     = (XM_opcode_bp == 5'b11100);
-    wire akx_lrk_stall   = XM_isAKX_bp & DX_isLRK;
+    wire XM_isAKX_bp;
+    assign XM_isAKX_bp     = (XM_opcode_bp == 5'b11100);
+    wire akx_lrk_stall;
+    assign akx_lrk_stall   = XM_isAKX_bp & DX_isLRK;
 
     assign FD_stall = md_stall | lw_use_stall | jr_raw_stall | akx_lrk_stall;
 
@@ -578,9 +581,9 @@ module processor_aes(
     assign data_writeReg    = MW_D;
 
     // Vector writeback (all AES instructions including akx write vrd)
-    assign ctrl_writeVecEnable = MW_isAES;
+    assign ctrl_writeVecEnable = MW_isAES | MW_isADDI ;
     assign ctrl_writeVecReg    = MW_IR[24:22];
-    assign data_writeVecReg    = MW_vec;
+    assign data_writeVecReg    = MW_isAES ? MW_vec : {96'b0, MW_D};
 
 endmodule
 

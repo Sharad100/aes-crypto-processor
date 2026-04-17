@@ -1,29 +1,31 @@
-`timescale 1ns / 1ps
+`timescale 1ns / 100ps
 
 module Wrapper_aes_tb;
 
-    reg  clock = 0;
+    reg  clk = 0;
     reg  reset = 1;
+    reg [127:0] out = 128'h0; 
 
-    Wrapper_aes DUT(.clock(clock), .reset(reset));
+    Wrapper_aes DUT(.clock(clk), .reset(reset));
 
-    always #5 clock = ~clock;
+    always #5 clk = ~clk;
 
     initial begin
-        @(posedge clock); @(posedge clock);
+        @(posedge clk); @(posedge clk);
         reset = 0;
     end
 
     // Monitor: print every cycle so you can watch vr0 change
     // (comment out if output is too noisy)
-    // initial $monitor("t=%0t  vr0=%h", $time, DUT.vRegA);
+    initial $monitor("t=%0t  vr0=%h", $time, DUT.vRegA);
 
     // Run 200 cycles (way more than the 53-instr program needs)
     integer cycle;
     initial begin
-        for (cycle = 0; cycle < 200; cycle = cycle + 1)
-            @(posedge clock);
+        for (cycle = 0; cycle < 400; cycle = cycle + 1)
+            @(posedge clk);
 
+        out = DUT.vRegA;
         // The processor is stuck in "j 0" by now.
         // Force ctrl_readVecRegA = 0 to read vr0 directly from the regfile.
         // Since the processor drives ctrl_readVecRegA to 0 for AES instructions
@@ -36,7 +38,7 @@ module Wrapper_aes_tb;
         if (DUT.vRegA === 128'h66e94bd4ef8a2c3b884cfa59ca342b2e)
             $display("PASS: matches NIST FIPS-197 all-zeros test vector");
         else
-            $display("FAIL: mismatch â€” check pipeline, key expansion, or byte ordering");
+            $display("FAIL: mismatch :” check pipeline, key expansion, or byte ordering");
 
         $finish;
     end

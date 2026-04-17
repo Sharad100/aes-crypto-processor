@@ -7,8 +7,7 @@ module KeyExpansion_tb;
 
   KeyExpansion kexp (
       out,
-      in,
-      en
+      in
   );
 
   initial begin

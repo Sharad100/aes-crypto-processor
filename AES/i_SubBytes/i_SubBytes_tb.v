@@ -1,3 +1,4 @@
+`timescale 1ns/100ps
 module i_SubBytes_tb;
 
   reg [127:0] in;
