@@ -2,8 +2,8 @@
 module VGAController (
     input clk,  // 100 MHz System Clock
     input reset,  // Reset Signal
-    output hSync,  // H Sync Signal
-    output vSync,  // Vertical Sync Signal
+    output VGA_HS,  // H Sync Signal
+    output VGA_VS,  // Vertical Sync Signal
     output [3:0] VGA_R,  // Red Signal Bits
     output [3:0] VGA_G,  // Green Signal Bits
     output [3:0] VGA_B,  // Blue Signal Bits
@@ -22,14 +22,11 @@ module VGAController (
   // Clock divider 100 MHz -> 25 MHz
   wire clk25;  // 25MHz clock
   wire locked; // dummy wire that goes high when the output clock has stabilized at specified frequency
-
   // Using PLL to make a 25 MHz clock
-  clk_wiz_0 pll (
-      .clk_out1(clk25),  // 25 MHz output clock
-      .reset(reset),
-      .locked(locked),
-      .clk_in1(clk)
-  );  // 100 MHz system clock input
+      clk_wiz_0 pll (
+        .clk_out1(clk25), .reset(reset), .locked(locked), .clk_in1(clk)
+    );
+  // 100 MHz system clock input
 
   // VGA Timing Generation for a Standard VGA Screen
   localparam VIDEO_WIDTH = 640,  // Standard VGA Width
@@ -47,8 +44,8 @@ module VGAController (
       .reset    (reset),      // Reset Signal
       .screenEnd(screenEnd),  // High for one cycle when between two frames
       .active   (active),     // High when drawing pixels
-      .hSync    (hSync),      // Set Generated H Signal
-      .vSync    (vSync),      // Set Generated V Signal
+      .hSync    (VGA_HS),      // Set Generated H Signal
+      .vSync    (VGA_VS),      // Set Generated V Signal
       .x        (x),          // X Coordinate (from left)
       .y        (y)
   );  // Y Coordinate (from top)	   

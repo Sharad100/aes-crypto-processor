@@ -581,6 +581,8 @@ module processor_aes(
     assign data_writeReg    = MW_D;
 
     // Vector writeback (all AES instructions including akx write vrd)
+    // addi does not write toe vector registers usually
+    // But we have it here for now to load a AES key until we have the keyboard working
     assign ctrl_writeVecEnable = MW_isAES | MW_isADDI ;
     assign ctrl_writeVecReg    = MW_IR[24:22];
     assign data_writeVecReg    = MW_isAES ? MW_vec : {96'b0, MW_D};

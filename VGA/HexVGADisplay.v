@@ -15,18 +15,12 @@ module HexVGADisplay (
     output [3:0]  VGA_B
 );
 
-    // 25 MHz pixel clock (same PLL as VGAController)
-    wire clk25, locked;
-    clk_wiz_0 pll (
-        .clk_out1(clk25), .reset(reset), .locked(locked), .clk_in1(clk)
-    );
-
     // VGA timing (640x480, standard parameters)
     wire        active, screenEnd;
     wire [9:0]  x;
     wire [8:0]  y;
     VGATimingGenerator #(.HEIGHT(480), .WIDTH(640)) Display (
-        .clk25(clk25), .reset(reset),
+        .clk25(clk), .reset(reset),
         .screenEnd(screenEnd), .active(active),
         .hSync(hSync), .vSync(vSync),
         .x(x), .y(y)
@@ -50,9 +44,9 @@ module HexVGADisplay (
     wire in_row1 = in_x && (y >= ROW1_Y) && (y < ROW1_Y + CHAR_H);
 
     // Pixel offsets within the display block (guarded to avoid underflow)
-    wire [9:0] x_off   = in_x    ? (x - 10'(START_X))  : 10'd0;
-    wire [8:0] y_off0  = in_row0 ? (y - 9'(ROW0_Y))    :  9'd0;
-    wire [8:0] y_off1  = in_row1 ? (y - 9'(ROW1_Y))    :  9'd0;
+    wire [9:0] x_off   = in_x    ? (x - (START_X))  : 10'd0;
+    wire [8:0] y_off0  = in_row0 ? (y - (ROW0_Y))    :  9'd0;
+    wire [8:0] y_off1  = in_row1 ? (y - (ROW1_Y))    :  9'd0;
 
     // Which character column (0-15) and pixel within character
     wire [3:0] char_col    = x_off[7:4];   // x_off / CHAR_W  (CHAR_W=16=2^4)

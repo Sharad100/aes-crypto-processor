@@ -5,16 +5,28 @@
 // In your assembly program, write the result to that register last (e.g. vr0).
 // The `done` output of the processor (r1 != 0) switches text color to green.
 module AES_VGA_Top (
-    input  clock, reset,
+    input  clk_100mhz, BTNC,
+    input [15:0] LED,
     // VGA outputs
-    output hSync, vSync,
+    output VGA_HS, VGA_VS,
     output [3:0] VGA_R, VGA_G, VGA_B
 );
+
+wire clock, clock25;
+    assign reset = BTNC;
+  clk_wiz_0 pll (
+      .clk_out1(clock),
+      .clk_out2(clock25),  // 25 MHz output clock
+      .reset(reset),
+      .locked(locked),
+      .clk_in1(clk_100mhz)
+  );
+    
     // Change to match whichever vector register stores the decrypted result
     localparam [2:0] TARGET_VEC_REG = 3'd0;
 
     // Instruction file (without .mem extension)
-    localparam INSTR_FILE = "./aes_test";
+    localparam INSTR_FILE = "./aes_test_no_dec";
 
     // ----------------------------------------------------------------
     // Wires matching Wrapper_aes
@@ -96,7 +108,7 @@ module AES_VGA_Top (
         if (reset) begin
             display_reg <= 128'h0;
             done_flag   <= 1'b0;
-        end else if (vrwe && vrd == TARGET_VEC_REG) begin
+        end else if (vrwe & vrd == TARGET_VEC_REG) begin//vrwe & (vrd == TARGET_VEC_REG)) begin
             display_reg <= vrData;
             done_flag   <= 1'b1;
         end
@@ -106,12 +118,12 @@ module AES_VGA_Top (
     // VGA display
     // ----------------------------------------------------------------
     HexVGADisplay vga (
-        .clk   (clock),
+        .clk   (clock25),
         .reset (reset),
         .value (display_reg),
         .done  (done_flag),
-        .hSync (hSync),
-        .vSync (vSync),
+        .hSync (VGA_HS),
+        .vSync (VGA_VS),
         .VGA_R (VGA_R),
         .VGA_G (VGA_G),
         .VGA_B (VGA_B)
